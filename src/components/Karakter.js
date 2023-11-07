@@ -1,72 +1,80 @@
 import React, { useState } from "react";
+import { useEffect } from "react";
 import {
-  Carousel,
-  CarouselItem,
-  CarouselControl,
+  Accordion,
+  AccordionBody,
+  AccordionHeader,
+  AccordionItem,
+} from "reactstrap";
+import styled from "styled-components";
 
-  } from "reactstrap";
+const KarakterInput = styled.input`
+margin-bottom: 15rem;
+margin-top: 0rem;
+
+`;
+
+const KarakterDiv = styled.div`
+  margin-bottom: 15rem;
+  margin-top: 0rem;
+`;
 
 const Karakter = ({ peopleData }) => {
-    const [activeIndex, setActiveIndex] = useState(0);
-  const [animating, setAnimating] = useState(false);
+    const [filterText, setFilterText] = useState("");
+    const [filteredPeople , setFilteredPeople] = useState([]);
+    
+    useEffect(()=>{
+        setFilteredPeople(
+            peopleData.filter((people)=>
+            people.name.toLowerCase().includes(filterText.toLowerCase())
+            )
+        );
+    },[filterText,[peopleData]]);
+    
+    const [open, setOpen] = useState("1");
+    const toggle = (id) => {
+      if (open === id) {
+        setOpen();
+      } else {
+        setOpen(id);
+      }
+    };
 
-  
-
-  const next = () => {
-    if (animating) return;
-    const nextIndex =
-      activeIndex === peopleData.length - 1 ? 0 : activeIndex + 1;
-    setActiveIndex(nextIndex);
-  };
-
-  const previous = () => {
-    if (animating) return;
-    const nextIndex =
-      activeIndex === 0 ? peopleData.length - 1 : activeIndex - 1;
-    setActiveIndex(nextIndex);
-  };
 
 
-
-  const slides = peopleData.map((item) => {
-    return (
-      <CarouselItem
-        onExiting={() => setAnimating(true)}
-        onExited={() => setAnimating(false)}
-        key={item.name}
-      >
-        <h3>{item.name}</h3>
-        <hr/>
-        <h4>Gender : {item.gender}</h4>
-        <h4>Height : {item.height}</h4>
-        <h4>Mass : {item.mass}</h4>
-        <h4>Birth Year : {item.birth_year}</h4>
-        <h4>Eye Color : {item.eye_color}</h4>
-        <h4>Hair Color : {item.hair_color}</h4>
-        <h4>Skin Color : {item.skin_color}</h4>
-        <h4>Films : {item.films}</h4>
-      </CarouselItem>
-    );
-  });
-
+const slides = filteredPeople.map((item) => {
   return (
-    <Carousel activeIndex={activeIndex} next={next} previous={previous}>
-
-      {slides}
-      <CarouselControl
-        direction="prev"
-        directionText="Previous"
-        onClickHandler={previous}
-      />
-      <CarouselControl
-        direction="next"
-        directionText="Next"
-        onClickHandler={next}
-      />
-    </Carousel>
+    <div key={item.name}>
+      <Accordion open={open} toggle={toggle}>
+        <AccordionItem>
+          <AccordionHeader targetId={peopleData.indexOf(item)}>
+            <strong>{item.name}</strong>
+          </AccordionHeader>
+          <AccordionBody accordionId={peopleData.indexOf(item)}>
+            <h4>Gender : {item.gender}</h4>
+            <h4>Height : {item.height}</h4>
+            <h4>Mass : {item.mass}</h4>
+            <h4>Birth Year : {item.birth_year}</h4>
+            <h4>Eye Color : {item.eye_color}</h4>
+            <h4>Hair Color : {item.hair_color}</h4>
+            <h4>Skin Color : {item.skin_color}</h4>
+            <h4>Films : {item.films}</h4>
+          </AccordionBody>
+        </AccordionItem>
+      </Accordion>
+    </div>
   );
-
-  
+});
+return (
+  <KarakterDiv>
+    <KarakterInput
+      type="text"
+      placeholder="Search"
+      onChange={(e) => setFilterText(e.target.value)}
+    />
+    {slides}
+  </KarakterDiv>
+);
 };
 
 export default Karakter;
