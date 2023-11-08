@@ -25,28 +25,61 @@ const App = () => {
     justify-content: center;
     align-items: center;
     width: 50vw;
-    height: 90vh;
+    height: 91vh;
   `;
 
   const [peopleData, setPeopleData] = useState([]);
+  const [filmData, setFilmData] = useState([]);
+  const [numberOfPages, setNumberOfPages] = useState(1);
+  const [activePage, setActivePage] = useState(1);
 
   useEffect(() => {
     axios
-      .get("https://swapi.dev/api/people/")
+      .get(`https://swapi.dev/api/people/?page=${activePage}`)
       .then((res) => {
-        console.log("peopleData:", res.data);
-        setPeopleData(res.data);
+        console.log("peopleData:", res.data.results);
+        setPeopleData(res.data.results);
+        setNumberOfPages(Math.ceil(res.data.count / res.data.results.length));
+      })
+      .catch((err) => {
+        console.log("Veriler Yüklenemedi!", err);
+      });
+  }, [activePage]);
+
+  useEffect(() => {
+    axios
+      .get("https://swapi.dev/api/films/")
+      .then((res) => {
+        console.log("filmData:", res.data.results);
+        setFilmData(res.data.results);
       })
       .catch((err) => {
         console.log("Veriler Yüklenemedi!", err);
       });
   }, []);
 
+  const pageHandler = (page) => {
+    console.log(page);
+    if (page == "previous") {
+      setActivePage(activePage - 1);
+    } else if (page == "next") {
+      setActivePage(activePage + 1);
+    }
+      else {
+        setActivePage(page);
+      }};
+  console.log(activePage);
+
   return (
     <AppDiv>
       <Header>StarWars Characters</Header>
       <MainDiv>
-        <Main peopleData={peopleData} />
+        <Main
+          peopleData={peopleData}
+          filmData={filmData}
+          pageHandler={pageHandler}
+          numberOfPages={numberOfPages}
+        />
       </MainDiv>
     </AppDiv>
   );
